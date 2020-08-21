@@ -5,6 +5,7 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.util.LruCache
+import androidx.annotation.VisibleForTesting
 import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
@@ -15,6 +16,7 @@ import java.security.MessageDigest
  */
 object BitmapPool {
 
+    @VisibleForTesting
     private val lruCache: LruCache<BitmapKey, Bitmap> = LruCache(40 * 1024 * 1024)
 
     fun getBitMap(height: Int, width: Int): Bitmap? {
@@ -33,7 +35,7 @@ object BitmapPool {
 /**
  *  Tells whether [cachedBitmap] can be used in place which decoding [Bitmap] with [bitmapOptions]
  */
-fun canUserForInBitmap(
+fun canUseForInBitmap(
     cachedBitmap: Bitmap, bitmapOptions: BitmapFactory.Options
 ): Boolean {
     val width = bitmapOptions.outWidth / bitmapOptions.inSampleSize

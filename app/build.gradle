@@ -9,6 +9,9 @@ apply plugin: 'kotlin-kapt'
 android {
     compileSdkVersion 29
     buildToolsVersion "29.0.2"
+    testOptions {
+        unitTests.returnDefaultValues = true
+    }
     defaultConfig {
         applicationId "com.android.pexels"
         minSdkVersion 19
@@ -26,6 +29,8 @@ android {
 }
 
 dependencies {
+    def room_version = "2.2.5"
+    def paging_version = "3.0.0-alpha05"
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation 'androidx.appcompat:appcompat:1.2.0'
@@ -39,20 +44,14 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
     implementation 'androidx.cardview:cardview:1.0.0'
     implementation 'com.google.code.gson:gson:2.2.4'
-    def paging_version = "3.0.0-alpha05"
-
     implementation "androidx.paging:paging-runtime:$paging_version"
-
-    // alternatively - without Android dependencies for tests
     testImplementation "androidx.paging:paging-common:$paging_version"
 
-
-    def room_version = "2.2.5"
     implementation "androidx.room:room-runtime:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
     implementation "androidx.room:room-ktx:$room_version"
     implementation 'com.github.markomilos:paginate:0.5.1'
-    implementation 'com.github.bumptech.glide:glide:4.11.0'
-    annotationProcessor 'com.github.bumptech.glide:compiler:4.11.0'
-
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.mockito:mockito-core:2.19.0'
 }
+

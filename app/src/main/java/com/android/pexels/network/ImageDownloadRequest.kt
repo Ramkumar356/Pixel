@@ -70,7 +70,7 @@ class ImageDownloadRequest(
             options.outWidth
         )
         // Enable options.inBitmap if cached bitmap memory can be used in place of new image.
-        if (inBitmap != null && canUserForInBitmap(inBitmap, options)) {
+        if (inBitmap != null && canUseForInBitmap(inBitmap, options)) {
             options.inBitmap = inBitmap
         }
         options.inJustDecodeBounds = false
@@ -96,7 +96,7 @@ class ImageDownloadRequest(
             options.outWidth
         )
         // Enable options.inBitmap if cached bitmap memory can be used in place of new image.
-        if (inBitmap != null && canUserForInBitmap(inBitmap, options)) {
+        if (inBitmap != null && canUseForInBitmap(inBitmap, options)) {
             options.inBitmap = inBitmap
         }
         options.inJustDecodeBounds = false
