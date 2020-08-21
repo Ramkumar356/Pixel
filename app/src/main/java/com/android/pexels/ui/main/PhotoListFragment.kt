@@ -49,8 +49,9 @@ class PhotoListFragment : Fragment() {
             this,
             Observer {
                 (pexelImageGridView.adapter as PhotoListAdapter).photoList.also { list ->
+                    val positionStart = list.size
                     list.addAll(it)
-                    (pexelImageGridView.adapter as PhotoListAdapter).notifyDataSetChanged()
+                    (pexelImageGridView.adapter as PhotoListAdapter).notifyItemRangeInserted(positionStart,list.size)
                 }
             })
         viewModel.photoFetchError.observe(this, Observer {
