@@ -45,14 +45,16 @@ class PhotoListAdapter(var photoList: ArrayList<Photo>) :
 
         fun bind(photo: Photo) {
             progressLayout.visibility = VISIBLE
+
             ImageLoader.loadImageInto(imageView, photo, object :
                 Callback<Bitmap?> {
                 override fun onSuccess(response: Bitmap?) {
                     response?.run {
                         imageView.post {
-                            progressLayout.visibility = View.GONE
                             imageView.setImageBitmap(response)
+                            progressLayout.visibility = View.GONE
                             imageView.invalidate()
+                            progressLayout.invalidate()
                         }
                     }
                 }
@@ -60,11 +62,12 @@ class PhotoListAdapter(var photoList: ArrayList<Photo>) :
                 override fun onError(errorMessage: String) {
                     imageView.post {
                         progressLayout.visibility = View.GONE
-                        imageView.setImageResource(android.R.drawable.ic_menu_camera)
+                        progressLayout.invalidate()
                     }
 
                 }
             })
+            progressLayout.invalidate()
         }
 
     }

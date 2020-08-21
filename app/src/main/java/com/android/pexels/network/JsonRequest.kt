@@ -27,9 +27,9 @@ interface Callback<T> {
 }
 
 class JsonHttpsRequest(
-    var jsonRequest: JsonRequest,
-    var executor: ExecutorService,
-    var callback: Callback<String>
+    private var jsonRequest: JsonRequest,
+    private var executor: ExecutorService,
+    private var callback: Callback<String>
 ) : Callable<String> {
 
     fun execute(): Future<String> = executor.submit(this)
