@@ -1,9 +1,6 @@
 package com.android.pexels.network
 
-import com.android.pexels.utilities.GET_HTTP_REQUEST_METHOD
-import com.android.pexels.utilities.HTTP_HEADER_AUTHORIZATION
-import com.android.pexels.utilities.HTTP_RESPONSE_CODE_SUCCESS
-import com.android.pexels.utilities.PEXEL_API_KEY
+import com.android.pexels.utilities.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 import java.lang.Exception
@@ -42,8 +39,11 @@ class JsonHttpsRequest(
                 it.requestMethod = GET_HTTP_REQUEST_METHOD
                 it.connect()
                 when (it.responseCode) {
-                    HTTP_RESPONSE_CODE_SUCCESS -> {
+                    HTTP_CODE_SUCCESS -> {
                         callback.onSuccess(readInputStream(InputStreamReader(it.inputStream)))
+                    }
+                    HTTP_CODE_RATE_LIMIT_EXCEEDED -> {
+                        callback.onError("Sorry, free API requests count exceeded.")
                     }
                     else -> callback.onError("Sorry, We couldn't load your photos at the moment.")
                 }
