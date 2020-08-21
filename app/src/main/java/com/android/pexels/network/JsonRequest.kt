@@ -1,9 +1,14 @@
 package com.android.pexels.network
 
 import com.android.pexels.utilities.GET_HTTP_REQUEST_METHOD
+import com.android.pexels.utilities.HTTP_HEADER_AUTHORIZATION
+import com.android.pexels.utilities.HTTP_RESPONSE_CODE_SUCCESS
+import com.android.pexels.utilities.PEXEL_API_KEY
 import java.io.BufferedReader
 import java.io.InputStreamReader
+import java.lang.Exception
 import java.net.URL
+import java.net.UnknownHostException
 import java.util.concurrent.Callable
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Future
@@ -11,6 +16,9 @@ import javax.net.ssl.HttpsURLConnection
 
 data class JsonRequest(var url: String, var headers: Map<String, String>)
 
+/**
+ * Callback for network request.
+ */
 interface Callback<T> {
 
     fun onSuccess(response: T)
@@ -27,26 +35,35 @@ class JsonHttpsRequest(
     fun execute(): Future<String> = executor.submit(this)
 
     override fun call(): String {
-        val connection: HttpsURLConnection =
-            URL(jsonRequest.url).openConnection() as HttpsURLConnection
-        for (headerKey in jsonRequest.headers.keys) {
-            connection.addRequestProperty(headerKey, jsonRequest.headers[headerKey])
-        }
-        connection.requestMethod = GET_HTTP_REQUEST_METHOD
+        var httpsConnection: HttpsURLConnection? = null
         try {
-            connection.connect()
-            val response: String = readInputStream(InputStreamReader(connection.inputStream))
-            callback.onSuccess(response)
+            httpsConnection = (URL(jsonRequest.url).openConnection() as HttpsURLConnection).also {
+                it.addRequestProperty(HTTP_HEADER_AUTHORIZATION, PEXEL_API_KEY)
+                it.requestMethod = GET_HTTP_REQUEST_METHOD
+                it.connect()
+                when (it.responseCode) {
+                    HTTP_RESPONSE_CODE_SUCCESS -> {
+                        callback.onSuccess(readInputStream(InputStreamReader(it.inputStream)))
+                    }
+                    else -> callback.onError("Sorry, We couldn't load your photos at the moment.")
+                }
+            }
+        } catch (unknownHost: UnknownHostException) {
+            callback.onError("Sorry, We couldn't load your photos at the moment.")
         } catch (e: Exception) {
             e.printStackTrace()
+        } finally {
+            httpsConnection?.disconnect()
         }
         return ""
     }
 
-    private fun readInputStream(bufferedInputStream: InputStreamReader): String {
+
+    // Converts the input stream to string.
+    private fun readInputStream(inputStreamReader: InputStreamReader): String {
         val sb = StringBuffer()
         var str: String?
-        val reader = BufferedReader(bufferedInputStream)
+        val reader = BufferedReader(inputStreamReader)
         while (reader.readLine().also { str = it } != null) {
             sb.append(str)
         }

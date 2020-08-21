@@ -1,36 +1,32 @@
 package com.android.pexels.data
 
 import androidx.lifecycle.LiveData
-import com.android.pexels.api.PexelPhotoService
+import androidx.lifecycle.MutableLiveData
+import com.android.pexels.api.PhotoService
+import com.android.pexels.data.cache.Photo
 import com.android.pexels.data.cache.PhotoDAO
-import com.android.pexels.data.cache.PhotoEntity
 
-class PhotoRepository(var imageService: PexelPhotoService, val photoDAO: PhotoDAO) {
+/**
+ * Repository class managing the network and database.
+ */
+class PhotoRepository(var imageService: PhotoService, val photoDAO: PhotoDAO) {
 
-    fun loadPhotos(page: Int, photoCount: Int): LiveData<List<PhotoEntity>> {
-
-        imageService.getCuratedImageList(page,photoCount).observeForever { photoList ->
-
-            val photoEntityList: List<PhotoEntity> = photoList.map {
-                PhotoEntity(
-                    it.id,
-                    it.width,
-                    it.height,
-                    it.url,
-                    it.urls.original,
-                    it.urls.large2x,
-                    it.urls.large,
-                    it.urls.medium,
-                    it.urls.small,
-                    it.urls.tiny,
-                    it.urls.portrait
-                )
+    fun loadPhotos(
+        page: Int,
+        photoCount: Int,
+        imageLoadError: MutableLiveData<String>
+    ): LiveData<List<Photo>> {
+        // Update the cache with fresh contents in background.
+        imageService.getCuratedImageList(page, photoCount, imageLoadError)
+            .observeForever { photoList ->
+                Thread {
+                    photoList.map {
+                        it.toPhoto()
+                    }.also {
+                        photoDAO.insertPhotos(it)
+                    }
+                }.start()
             }
-            Thread{
-                photoDAO.updatePhotos(photoEntityList)
-            }.start()
-        }
         return photoDAO.getPhotos(photoCount, page * photoCount)
     }
-
 }

@@ -10,13 +10,13 @@ import android.widget.ImageView
 import androidx.recyclerview.widget.RecyclerView
 import com.android.pexels.R
 import com.android.pexels.utilities.ImageLoader
-import com.android.pexels.data.cache.PhotoEntity
+import com.android.pexels.data.cache.Photo
 import com.android.pexels.network.Callback
 
 /**
  * Adapter for [RecyclerView] in [com.android.pexels.HomeActivity]
  */
-class PhotoListAdapter(var photoList: ArrayList<PhotoEntity>) :
+class PhotoListAdapter(var photoList: ArrayList<Photo>) :
     RecyclerView.Adapter<PhotoListAdapter.ImageViewHolder>() {
 
     init {
@@ -43,9 +43,9 @@ class PhotoListAdapter(var photoList: ArrayList<PhotoEntity>) :
         val imageView: ImageView = itemView.findViewById(R.id.pexelPhoto);
         val progressLayout: FrameLayout = itemView.findViewById(R.id.progressContainer)
 
-        fun bind(photo: PhotoEntity) {
+        fun bind(photo: Photo) {
             progressLayout.visibility = VISIBLE
-            ImageLoader.loadImageInto(imageView.context, imageView, photo, object :
+            ImageLoader.loadImageInto(imageView, photo, object :
                 Callback<Bitmap?> {
                 override fun onSuccess(response: Bitmap?) {
                     response?.run {

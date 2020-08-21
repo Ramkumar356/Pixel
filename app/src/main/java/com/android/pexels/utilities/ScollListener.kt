@@ -4,9 +4,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-
+/**
+ * RecyclerView ScrollListener handling pagination.
+ */
 abstract class PaginationScrollListener(private val layoutManager: GridLayoutManager) :
     RecyclerView.OnScrollListener() {
+
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
         val visibleItemCount = layoutManager.childCount
@@ -24,5 +27,4 @@ abstract class PaginationScrollListener(private val layoutManager: GridLayoutMan
     abstract fun loadMoreItems()
     abstract val isLastPage: Boolean
     abstract val isLoading: Boolean
-
 }

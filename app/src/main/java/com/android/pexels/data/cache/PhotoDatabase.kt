@@ -2,14 +2,10 @@ package com.android.pexels.data.cache
 
 import android.app.Application
 import androidx.lifecycle.LiveData
-import androidx.paging.DataSource
 import androidx.room.*
 import androidx.room.OnConflictStrategy.IGNORE
-import androidx.room.OnConflictStrategy.REPLACE
-import com.android.pexels.data.Photo
-import com.android.pexels.data.PhotoUrls
 
-@Database(entities = [PhotoEntity::class], version = 1, exportSchema = false)
+@Database(entities = [Photo::class], version = 1, exportSchema = false)
 abstract class PhotoDatabase : RoomDatabase() {
 
     abstract fun getPhotoDAO(): PhotoDAO
@@ -26,12 +22,11 @@ abstract class PhotoDatabase : RoomDatabase() {
             }
             return INSTANCE as PhotoDatabase
         }
-
     }
 }
 
 @Entity(primaryKeys = ["id"])
-data class PhotoEntity(
+data class Photo(
     var id: Int,
     var width: Int,
     var height: Int,
@@ -48,12 +43,9 @@ data class PhotoEntity(
 @Dao
 interface PhotoDAO {
 
-    @Query("SELECT * FROM PhotoEntity LIMIT :count OFFSET :offset")
-    fun getPhotos(count: Int, offset: Int): LiveData<List<PhotoEntity>>
-
-    @Insert(entity = PhotoEntity::class)
-    fun insertPhoto(photos: PhotoEntity)
+    @Query("SELECT * FROM Photo LIMIT :count OFFSET :offset")
+    fun getPhotos(count: Int, offset: Int): LiveData<List<Photo>>
 
     @Insert(onConflict = IGNORE)
-    fun updatePhotos(photos: List<PhotoEntity>)
+    fun insertPhotos(photos: List<Photo>)
 }

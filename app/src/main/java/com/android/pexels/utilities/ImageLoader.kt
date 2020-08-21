@@ -4,7 +4,7 @@ import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.drawable.BitmapDrawable
 import android.widget.ImageView
-import com.android.pexels.data.cache.PhotoEntity
+import com.android.pexels.data.cache.Photo
 import com.android.pexels.network.Callback
 import com.android.pexels.network.ImageDownloadRequest
 import java.util.concurrent.ExecutorService
@@ -17,11 +17,16 @@ object ImageLoader {
     private val imageExecutors: ExecutorService = Executors.newCachedThreadPool()
     // Map of ImageView and Future object of active Callable object doing image fetch, cache and decode.
     private val requestTracker: MutableMap<ImageView, Future<Bitmap?>> = mutableMapOf()
+    // Reference of application context. Should be initialized in application class.
+    private lateinit var appContext: Context
+
+    fun init(context: Context) {
+        appContext = context
+    }
 
     fun loadImageInto(
-        context: Context,
         imageView: ImageView,
-        photoEntity: PhotoEntity,
+        photo: Photo,
         callback: Callback<Bitmap?>
     ) {
         // Cache the existing Bitmap from imageview into BitmapPool.
@@ -36,8 +41,8 @@ object ImageLoader {
         }
 
         ImageDownloadRequest(
-            context,
-            photoEntity.medium!!,
+            appContext,
+            photo.medium!!,
             imageExecutors,
             callback,
             imageView.drawable.intrinsicWidth,

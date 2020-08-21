@@ -3,34 +3,27 @@ package com.android.pexels.viewmodels
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.MutableLiveData
-import androidx.room.Room
-import com.android.pexels.api.PexelPhotoService
+import com.android.pexels.api.PhotoService
 import com.android.pexels.data.PhotoRepository
 import com.android.pexels.data.cache.PhotoDatabase
-import com.android.pexels.data.cache.PhotoEntity
+import com.android.pexels.data.cache.Photo
 
 class PhotoListViewModel(application: Application) : AndroidViewModel(application) {
 
-    lateinit var repository: PhotoRepository
+    var repository: PhotoRepository
+    private val database: PhotoDatabase = PhotoDatabase.getInstance(application)
 
     init {
-        val database: PhotoDatabase =
-            Room.databaseBuilder<PhotoDatabase>(
-                getApplication(),
-                PhotoDatabase::class.java,
-                "PexelDatabase"
-            ).build()
-        repository = PhotoRepository(PexelPhotoService(), database.getPhotoDAO())
+        repository = PhotoRepository(PhotoService(), database.getPhotoDAO())
     }
 
-    val photoList = MutableLiveData<List<PhotoEntity>>();
+    val photoList = MutableLiveData<List<Photo>>()
 
-    fun loadPhotos(page: Int, count: Int) {
-        repository.loadPhotos(page, count).observeForever {
+    val photoFetchError = MutableLiveData<String>()
+
+    fun loadPhotos(pageIndex: Int, photosCount: Int) {
+        repository.loadPhotos(pageIndex, photosCount, photoFetchError).observeForever {
             photoList.postValue(it)
         }
-
     }
-
-
 }

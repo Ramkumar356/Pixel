@@ -9,10 +9,13 @@ import java.io.File
 import java.io.FileOutputStream
 import java.security.MessageDigest
 
-
+/**
+ * Pool of used [Bitmap] that can be reused when decoding new bitmap.
+ * Which helps to avoid running GC frequently causing rendering performance issues.
+ */
 object BitmapPool {
 
-    val lruCache: LruCache<BitmapKey, Bitmap> = LruCache(40 * 1024 * 1024)
+    private val lruCache: LruCache<BitmapKey, Bitmap> = LruCache(40 * 1024 * 1024)
 
     fun getBitMap(height: Int, width: Int): Bitmap? {
         val bitmap: Bitmap? = lruCache[BitmapKey(height, width)]
@@ -27,17 +30,19 @@ object BitmapPool {
     }
 }
 
-
-fun canUseForInBitmap(
-    candidate: Bitmap, targetOptions: BitmapFactory.Options
+/**
+ *  Tells whether [cachedBitmap] can be used in place which decoding [Bitmap] with [bitmapOptions]
+ */
+fun canUserForInBitmap(
+    cachedBitmap: Bitmap, bitmapOptions: BitmapFactory.Options
 ): Boolean {
-    val width = targetOptions.outWidth / targetOptions.inSampleSize
-    val height = targetOptions.outHeight / targetOptions.inSampleSize
-    val byteCount: Int = width * height * getBytesPerPixel(candidate.config)
+    val width = bitmapOptions.outWidth / bitmapOptions.inSampleSize
+    val height = bitmapOptions.outHeight / bitmapOptions.inSampleSize
+    val byteCount: Int = width * height * getBytesPerPixel(cachedBitmap.config)
     return try {
-        byteCount <= candidate.allocationByteCount
+        byteCount <= cachedBitmap.allocationByteCount
     } catch (e: NullPointerException) {
-        byteCount <= candidate.height * candidate.rowBytes
+        byteCount <= cachedBitmap.height * cachedBitmap.rowBytes
     }
 }
 
@@ -61,20 +66,23 @@ fun ByteArray.toHex(): String {
     return joinToString("") { "%02x".format(it) }
 }
 
-
+/**
+ * Cache the image into local file system.
+ */
 fun saveImage(context: Context, url: String, bitMap: Bitmap) {
-    val cacheDir = File("${context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString()}/cache/")
+    val cacheDir =
+        File("${context.getExternalFilesDir(Environment.DIRECTORY_PICTURES).toString()}/cache/")
     if (!cacheDir.exists()) {
         cacheDir.mkdirs()
     }
-    val file = File(cacheDir, "${url.toMD5()}.jpeg")
-    if (file.exists()) {
+    val imageFile = File(cacheDir, "${url.toMD5()}.jpeg")
+    if (imageFile.exists()) {
         return
-    }else{
-        file.createNewFile()
+    } else {
+        imageFile.createNewFile()
     }
     try {
-        FileOutputStream(file).run {
+        FileOutputStream(imageFile).run {
             bitMap.compress(Bitmap.CompressFormat.JPEG, 90, this)
             flush()
             close()
