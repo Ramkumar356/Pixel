@@ -1,19 +1,17 @@
 Pexel
 =====
 
-A Gallery application listing free stock photos from Pexel(https://www.pexels.com/). Pexel supports
-fetching, decoding, and caching images efficiently using BitmapPool.
+An Android application listing free stock photos from Pexel(https://www.pexels.com/) without using third party image loader by
+fetching, decoding, and caching images efficiently using a custom BitmapPool.
 
 ScreenShot
 --------
 <img alt="App image" src="screenshots/scrolling.gif" >
 
-Memory Management
+Efficent Memory Usage
 -----------------
 
-Loading bimaps into memory frequently results in very frequent calling of GC(Garbage Collector) which freeze UI thread. So to avoid such scenario Pexel uses Bitmappool to avoid reduce GC overhead that will result in smooth running application.
+As memory(RAM) is a critical resource in mobile devices, loading bimaps into memory for every new image fills up the memory very quickly and results in UI freeze because of frequent G. Hence to avoid such scenario this application uses Bitmapool which reuses the memory of images that are out of display.
 
-DownSampling
-------------
-Images are downsampled to view size before loading into memory irrespective of the original size.
+
 
